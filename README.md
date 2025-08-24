@@ -127,7 +127,70 @@ uv run python -m tool_caller --interactive
 
 ## New tools
 
-1. **Log Analysis Tool** – Analyzes log files and generates a summary report.
+1. System info Tool
+
+   Provides comprehensive system information including CPU, memory, disk usage, and network statistics for monitoring and diagnostics.
+
+### Usage
+
+- **Tool Name**: `system_info`
+- **Purpose**: Monitor system health and gather performance metrics
+- **Categories**: CPU, Memory, Disk, Network, Processes
+
+### Example Queries
+
+- "What's the current system status?"
+- "Show me CPU and memory usage"
+- "Get system information including top processes"
+- "Check disk space and network stats"
+
+![alt text](<Screenshot From 2025-08-24 22-40-51.png>)
+
+### Parameters
+
+| Parameter           | Type    | Default | Description                                |
+| ------------------- | ------- | ------- | ------------------------------------------ |
+| `include_processes` | boolean | false   | Include top CPU/memory consuming processes |
+| `top_processes`     | integer | 5       | Number of top processes to return          |
+| `include_network`   | boolean | true    | Include network interface statistics       |
+
+### Output
+
+Returns a comprehensive report with:
+
+**System Info:**
+
+- Operating system details
+- CPU cores and frequency
+- System uptime
+- Python version
+
+**Performance Metrics:**
+
+- CPU usage (overall and per core)
+- Memory usage and swap statistics
+- Disk usage for all mounted partitions
+- Network I/O statistics (optional)
+
+**Process Information (optional):**
+
+- Top processes by CPU usage
+- Top processes by memory usage
+- Total process count
+
+### Configuration
+
+No configuration required - uses system APIs directly through the `psutil` library.
+
+### Dependencies
+
+Requires `psutil` library:
+
+```bash
+pip install psutil
+```
+
+2. **Log Analysis Tool** – Analyzes log files and generates a summary report.
 
 ### Usage
 

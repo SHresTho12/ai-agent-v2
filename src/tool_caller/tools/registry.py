@@ -2,6 +2,7 @@ from ..core.tool_registry import ToolRegistry
 from .calculator_tool import CalculatorTool
 from .weather_tool import WeatherTool
 from .log_analysis_tool import LogAnalysisTool
+from .system_info_tool import SystemInfoTool
 
 def register_all_tools(registry: ToolRegistry) -> None:
     """Register all available tools"""
@@ -19,3 +20,7 @@ def register_all_tools(registry: ToolRegistry) -> None:
     # Register log analysis tool
     log_analysis_tool = LogAnalysisTool()
     registry.register_tool(log_analysis_tool)
+
+    # Register system information tool
+    system_info_tool = SystemInfoTool()
+    registry.register_tool(system_info_tool)
