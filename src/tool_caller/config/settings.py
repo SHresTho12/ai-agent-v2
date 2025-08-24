@@ -1,11 +1,15 @@
 
 import os
+import logging
 
 from pydantic_settings import BaseSettings
 from typing import Optional, Dict
 from dotenv import load_dotenv
 
+
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 class LLMSettings(BaseSettings):
     """Settings for a single LLM provider"""
@@ -17,6 +21,13 @@ class LLMSettings(BaseSettings):
 
 class Settings(BaseSettings):
     """Application settings"""
+
+
+    ## Check if there is any api key available in the environment variables
+
+    if not os.getenv("GEMINI_API_KEY"):
+        logger.warning("GEMINI_API_KEY is not set. Some features may not work.")
+        raise ValueError("GEMINI_API_KEY is required but not set in environment variables.")
 
     # Multiple LLM configurations
     llms: Dict[str, LLMSettings] = {

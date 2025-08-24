@@ -147,7 +147,7 @@ Logs are saved in `src/logs/app.log` by default. Logging is enabled for tool exe
 
 ## Testing
 
-Run tests from `src/tests` using `pytest`:
+Run tests from `tests` using `pytest`:
 
 ```bash
 uv run pytest
