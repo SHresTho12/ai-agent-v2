@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     if not os.getenv("GEMINI_API_KEY"):
         logger.warning("GEMINI_API_KEY is not set. Some features may not work.")
         raise ValueError("GEMINI_API_KEY is required but not set in environment variables.")
+    
+    if not os.getenv("WEATHER_API_KEY"):
+        logger.warning("WEATHER_API_KEY is not set. Some features may not work.")
+
+
 
     # Multiple LLM configurations
     llms: Dict[str, LLMSettings] = {
@@ -40,7 +45,9 @@ class Settings(BaseSettings):
     
     default_llm_provider: str = "gemini"
     # Tool API keys
-    weather_api_key: Optional[str] = None
+    
+    
+    weather_api_key: Optional[str] = os.getenv("WEATHER_API_KEY")
 
     # Logging
     log_level: str = "INFO"
