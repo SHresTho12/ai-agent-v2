@@ -9,6 +9,7 @@ A modular AI agent framework that integrates multiple tools with LLMs (OpenAI, G
 ```
 Project Structure
 
+
 ├── Makefile
 ├── README.md
 ├── requirements.txt
@@ -63,7 +64,7 @@ Project Structure
 - **LLM Integration** – Supports multiple LLM providers like OpenAI and Gemini.
 - **Safe Tool Execution** – Standardized `ToolResponse` with success status, error messages, and execution time.
 - **Extensible** – Easily add new tools by inheriting from `BaseTool`.
-- **CLI Interface** – Supports interactive and non-interactive modes.
+- **CLI Interface** – Supports (future) interactive and non-interactive modes.
 
 ### Available Tools
 
@@ -72,6 +73,8 @@ Project Structure
 | **Calculator**   | Safely evaluates mathematical expressions using arithmetic operations and math functions.       | Simple questions like `1 + 1` may sometimes be answered directly by the LLM instead of calling the tool. |
 | **Weather**      | Fetches current weather info from [OpenWeatherMap](https://openweathermap.org/) for a location. | Returns temperature, feels-like, humidity, description, and country code.                                |
 | **Generic Text** | Handles general knowledge or text-based questions.                                              | Loosely prompted; very easy questions may not always trigger a tool call.                                |
+| **System Info**  | Retrieves safe system details: OS, CPU count, total RAM, and disk usage.                        | Runs locally only; does **not** expose sensitive process lists or environment variables.                 |
+| **Log Analysis** | Parses a log file and generates a summary report (error counts, warnings, timestamps, etc.).    | Reads from safe local log files only; does not stream live logs.                                         |
 
 ---
 
@@ -109,15 +112,15 @@ uv run python -m tool_caller
 
 You will be prompted for a user request. The LLM will process the request and call registered tools if needed. Results and outputs will be printed in the console.
 
-**Interactive Mode** (future support):
+<!-- **Interactive Mode** (future support):
 
 ```bash
 uv run python -m tool_caller --interactive
-```
+``` -->
 
 ---
 
-## Improving existing tools
+## Adding New Tools
 
 1. Create a new tool class inheriting from `BaseTool` in `src/tool_caller/tools/`.
 
@@ -125,11 +128,49 @@ uv run python -m tool_caller --interactive
 
 3. Register the tool in `tools/registry.py` with the `register_all_tools` function.
 
+**Example**:
+
+```python
+class MyTool(BaseTool):
+    @property
+    def name(self) -> str:
+        return "my_tool"
+
+    @property
+    def description(self) -> str:
+        return "Example tool"
+
+    @property
+    def schema(self) -> ToolSchema:
+        return ToolSchema(
+            name=self.name,
+            description=self.description,
+            parameters={"type": "object", "properties": {}, "required": []}
+        )
+
+    async def _run(self, **kwargs) -> Any:
+        return {"message": "Hello from MyTool!"}
+
+    def validate_parameters(self, parameters: Dict[str, Any]) -> bool:
+        """Validate input parameters"""
+        return True
+```
+
+Then register in `tools/registry.py`:
+
+```python
+from .my_tool import MyTool
+
+def register_all_tools():
+    my_tool = MyTool()
+    registry.register_tool(my_tool)
+```
+
 ## New tools
 
-1. System info Tool
+## **1. System info Tool**
 
-   Provides comprehensive system information including CPU, memory, disk usage, and network statistics for monitoring and diagnostics.
+Provides comprehensive system information including CPU, memory, disk usage, and network statistics for monitoring and diagnostics.
 
 ### Usage
 
@@ -187,10 +228,10 @@ No configuration required - uses system APIs directly through the `psutil` libra
 Requires `psutil` library:
 
 ```bash
-pip install psutil
+uv pip install psutil
 ```
 
-2. **Log Analysis Tool** – Analyzes log files and generates a summary report.
+## **2. Log Analysis Tool** – Analyzes log files and generates a summary report.
 
 ### Usage
 
@@ -222,32 +263,6 @@ Returns a report with:
 ### Configuration
 
 Uses the log file path from `settings.log_file` - no need to specify file paths in requests.
-
-**Example**:
-
-```python
-class MyTool(BaseTool):
-    @property
-    def name(self) -> str:
-        return "my_tool"
-
-    @property
-    def description(self) -> str:
-        return "Example tool"
-
-    @property
-    def schema(self) -> ToolSchema:
-        return ToolSchema(
-            name=self.name,
-            description=self.description,
-            parameters={"type": "object", "properties": {}, "required": []}
-        )
-
-    async def _run(self, **kwargs):
-        return {"message": "Hello from MyTool!"}
-```
-
----
 
 ## Logs
 
