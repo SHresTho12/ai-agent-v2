@@ -53,13 +53,25 @@ Project Structure
 - `logs/` stores runtime logs.
 - `main.py` in `src` is the entry point for the CLI application.
 
-## Features
+---
 
-- **Tool Registry System**: Register new tools dynamically with metadata (name, description, parameters).
-- **LLM Integration**: Supports multiple LLM providers like OpenAI and Gemini.
-- **Safe Tool Execution**: Standardized `ToolResponse` with success, error, and execution time.
-- **Extensible**: Easily add new tools by inheriting from `BaseTool`.
-- **CLI Interface**: Interactive or non-interactive modes for user input.
+## Features & Tools
+
+### Features
+
+- **Tool Registry System** – Dynamically register tools with metadata (name, description, parameters).
+- **LLM Integration** – Supports multiple LLM providers like OpenAI and Gemini.
+- **Safe Tool Execution** – Standardized `ToolResponse` with success status, error messages, and execution time.
+- **Extensible** – Easily add new tools by inheriting from `BaseTool`.
+- **CLI Interface** – Supports interactive and non-interactive modes.
+
+### Available Tools
+
+| Tool Name        | Description                                                                                     | Notes / Limitations                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Calculator**   | Safely evaluates mathematical expressions using arithmetic operations and math functions.       | Simple questions like `1 + 1` may sometimes be answered directly by the LLM instead of calling the tool. |
+| **Weather**      | Fetches current weather info from [OpenWeatherMap](https://openweathermap.org/) for a location. | Returns temperature, feels-like, humidity, description, and country code.                                |
+| **Generic Text** | Handles general knowledge or text-based questions.                                              | Loosely prompted; very easy questions may not always trigger a tool call.                                |
 
 ---
 
