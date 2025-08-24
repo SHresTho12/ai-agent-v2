@@ -3,7 +3,7 @@ import time
 import ast
 import operator
 from typing import Dict, Any
-from ..tools.base import BaseTool, ToolResult, ToolSchema
+from ..tools.base import BaseTool, ToolResponse, ToolSchema
 
 class CalculatorTool(BaseTool):
     """Tool for performing mathematical calculations"""
@@ -129,37 +129,16 @@ class CalculatorTool(BaseTool):
                 raise ValueError(f"Unsupported name: {node.id}")
         else:
             raise ValueError(f"Unsupported node type: {type(node)}")
-    
-    async def execute(self, **kwargs) -> ToolResult:
-        """Execute calculation"""
-        start_time = time.time()
-        
-        try:
-            expression = kwargs["expression"]
-            precision = kwargs.get("precision", 4)
-            
-            # Evaluate the expression safely
-            result = self._safe_eval(expression)
-            
-            # Round to specified precision
-            if isinstance(result, float):
-                result = round(result, precision)
-            
-            execution_time = time.time() - start_time
-            
-            return ToolResult(
-                success=True,
-                result={
-                    "expression": expression,
-                    "result": result,
-                    "precision": precision
-                },
-                execution_time=execution_time
-            )
-        
-        except Exception as e:
-            return ToolResult(
-                success=False,
-                error=f"Calculation error: {str(e)}",
-                execution_time=time.time() - start_time
-            )
+
+    async def _run(self, **kwargs) -> Any:
+        """Core calculation logic."""
+        expression = kwargs["expression"]
+        precision = kwargs.get("precision", 4)
+        result = self._safe_eval(expression)
+        if isinstance(result, float):
+            result = round(result, precision)
+        return {
+            "expression": expression,
+            "result": result,
+            "precision": precision
+        }

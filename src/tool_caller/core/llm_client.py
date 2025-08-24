@@ -4,13 +4,14 @@ from typing import Dict, List, Any, Optional, Union
 from openai import AsyncOpenAI
 import google.generativeai as genai
 from google.generativeai import types
-from google.generativeai.protos import FunctionDeclaration
+from google.generativeai.protos import FunctionDeclaration, Schema, Type # Import Schema and Type here
 
 
 from ..config.settings import get_settings
 from ..models.requests import LLMRequest
 from ..models.responses import LLMResponse
 from ..models.gemini_response import GeminiLLMResponse
+from ..tools.base import ToolSchema
 logger = logging.getLogger(__name__)
 
 class LLMClient:
@@ -20,20 +21,20 @@ class LLMClient:
         
         self.settings = get_settings()
         self.provider = provider or self.settings.default_llm_provider
-        llm_config = self.settings.llms.get(provider)
+        self.llm_config = self.settings.llms.get(self.provider)
 
-        if not llm_config:
+        if not self.llm_config:
             logger.error(f"LLM provider {provider} not configured")
             raise ValueError(f"LLM provider {provider} not configured")
 
-        self.model = llm_config.model
-        self.temperature = llm_config.temperature
+        self.model = self.llm_config.model
+        self.temperature = self.llm_config.temperature
         
         # Initialize the correct client based on the provider
         if self.provider == "openai":
-            self.client = AsyncOpenAI(api_key=llm_config.api_key)
+            self.client = AsyncOpenAI(api_key=self.llm_config.api_key)
         elif self.provider == "gemini":
-            genai.configure(api_key=llm_config.api_key)
+            genai.configure(api_key=self.llm_config.api_key)
             self.client = genai.GenerativeModel(
                 model_name=self.model,
                 generation_config=types.GenerationConfig(temperature=self.temperature)
@@ -85,24 +86,23 @@ class LLMClient:
     async def _process_gemini(
         self,
         user_input: str,
-        available_tools: List[Dict[str, Any]]
+        available_tools: List[ToolSchema]
     ) -> GeminiLLMResponse:
         """ Process with Gemini"""
         
-        try:                # Convert tools to Gemini's format
+        try:
+            # Convert tools to Gemini's format
             tools_for_gemini = [
                 FunctionDeclaration(
-                    name=tool["function"]["name"],
-                    description=tool["function"]["description"],
-                    parameters=types.FunctionDeclaration.Schema(
-                        type=types.FunctionDeclaration.Schema.Type.OBJECT,
+                    name=tool.name,
+                    description=tool.description,
+                    parameters=Schema(  # Use the imported Schema class directly
+                        type=Type.OBJECT,
                         properties={
-                            k: types.FunctionDeclaration.Schema(
-                                type=types.FunctionDeclaration.Schema.Type.STRING
-                                # This is a simplified example, you'll need to map other types
-                            ) for k in tool["function"]["parameters"]["properties"]
+                            k: Schema(type=Type.STRING) # Use Schema and Type here
+                            for k in tool.parameters["properties"]
                         },
-                        required=tool["function"]["parameters"]["required"]
+                        required=tool.parameters["required"]
                     )
                 ) for tool in available_tools
             ]
@@ -115,8 +115,8 @@ class LLMClient:
             user_input,
             tools=tools_for_gemini,
             generation_config=genai.types.GenerationConfig(
-                temperature=self.config.temperature,
-                max_output_tokens=self.config.max_tokens,
+                temperature=self.llm_config.temperature,
+                max_output_tokens=self.llm_config.max_tokens,
             )
         )
         return response

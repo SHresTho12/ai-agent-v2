@@ -5,6 +5,8 @@ from .tool_registry import ToolRegistry
 from ..models.responses import ExecutionResult
 
 
+logger = logging.getLogger(__name__)
+
 class ToolExecutor:
     '''Executes tool based on LLM decisions'''
 
@@ -16,9 +18,15 @@ class ToolExecutor:
         tool_calls: List[Dict[str, Any]]
     ) -> List[ExecutionResult]:
         """Execute multiple tool calls concurrently"""
-        
+
+        if not tool_calls:
+            return []
+
         tasks = []
         for tool_call in tool_calls:
+            
+            
+            print("Scheduling tool call:", tool_call)
             task = self._execute_single_tool(tool_call)
             tasks.append(task)
         
@@ -42,9 +50,12 @@ class ToolExecutor:
     
     async def _execute_single_tool(self, tool_call: Dict[str, Any]) -> ExecutionResult:
         """Execute a single tool call"""
+        print("Executing tool call:", tool_call)
+        print("Type:", type(tool_call))
         
-        tool_name = tool_call.get("name")
-        parameters = tool_call.get("parameters", {})
+ 
+        tool_name = tool_call.name
+        parameters = tool_call.arguments  # Note: it's 'arguments', not 'parameters'
         
         logger.info(f"Executing tool: {tool_name} with params: {parameters}")
         

@@ -101,28 +101,77 @@ class GeminiLLMResponse(BaseModel):
             # Handle GenerateContentResponse or similar Gemini response
             if hasattr(response, 'candidates') and response.candidates:
                 candidate = response.candidates[0]
-                
-                # Extract content
+            
                 content = None
                 tool_calls = []
-                
                 if hasattr(candidate, 'content') and candidate.content:
                     content_parts = candidate.content.parts
                     text_parts = []
-                    
                     for part in content_parts:
-                        if hasattr(part, 'text'):
-                            text_parts.append(part.text)
-                        elif hasattr(part, 'function_call'):
-                            # Extract function calls
+                        print("Processing part:", part)
+                        print("Part type:", type(part))
+                        print("part.function_call:", getattr(part, "function_call", None))
+                        
+                        # Check for function_call first, or make text check more specific
+                        if hasattr(part, "function_call") and part.function_call:
                             func_call = part.function_call
+                            arguments = {}
+                            args = getattr(func_call, "args", None)
+                            print("Processing function call arguments...")
+                            print("args:", args)
+                            if args:
+                                try:
+                                    print("Trying to iterate as dict...")
+                                    for k, v in args.items():
+                                        print(f"Key: {k}, Value: {v}, Value type: {type(v)}")
+                                        arguments[k] = v
+                                except Exception as e:
+                                    print(f"Dict iteration failed: {e}")
+                        
+                                    try:
+                                        print("Trying dict() conversion...")
+                                        args_dict = dict(args)
+                                        print("Converted args_dict:", args_dict)
+                                        for k, v in args_dict.items():
+                                            print(f"Key: {k}, Value: {v}")
+                                            arguments[k] = v
+                                    except Exception as e2:
+                                        print(f"Dict conversion failed: {e2}")
+                                        
+                                        # Last resort - check what methods are available
+                                        print("Available methods:", [method for method in dir(args) if not method.startswith('_')])
+
+                            
+                            print("Extracted tool call arguments:", arguments)
                             tool_calls.append(ToolCallResponse(
-                                id=str(uuid.uuid4()),  # Generate ID for Gemini
-                                name=func_call.name,
-                                arguments=dict(func_call.args) if hasattr(func_call, 'args') else {}
+                                id=str(uuid.uuid4()),
+                                name=getattr(func_call, "name", ""),
+                                arguments=arguments
                             ))
-                    
+                        # If part has 'text' and it's not empty/None, treat as text response
+                        elif getattr(part, "text", None) and part.text.strip():
+                            text_parts.append(part.text)
+                        # If part itself is a function_call (protobuf style)
+                        elif getattr(part, "name", None) and getattr(part, "args", None):
+                            arguments = {}
+                            args = getattr(part, "args", None)
+                            if args and hasattr(args, "fields"):
+                                for k, v in args.fields.items():
+                                    if hasattr(v, "string_value"):
+                                        arguments[k] = v.string_value
+                                    elif hasattr(v, "number_value"):
+                                        arguments[k] = v.number_value
+                                    elif hasattr(v, "bool_value"):
+                                        arguments[k] = v.bool_value
+                                    else:
+                                        arguments[k] = str(v)
+                                tool_calls.append(ToolCallResponse(
+                            id=str(uuid.uuid4()),
+                            name=part.name,
+                            arguments=arguments
+                            ))
                     content = '\n'.join(text_parts) if text_parts else None
+                    print("Extracted tool calls:", tool_calls)
                 
                 # Extract safety ratings
                 safety_ratings = []
@@ -152,7 +201,7 @@ class GeminiLLMResponse(BaseModel):
                 finish_reason = None
                 if hasattr(candidate, 'finish_reason'):
                     finish_reason = candidate.finish_reason.name if hasattr(candidate.finish_reason, 'name') else str(candidate.finish_reason)
-                
+       
                 return cls(
                     request_id=request_id,
                     content=content,

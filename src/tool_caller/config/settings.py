@@ -1,7 +1,11 @@
 
+import os
+
 from pydantic_settings import BaseSettings
 from typing import Optional, Dict
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class LLMSettings(BaseSettings):
     """Settings for a single LLM provider"""
@@ -19,7 +23,7 @@ class Settings(BaseSettings):
         "openai": LLMSettings(api_key="", model="gpt-4"),
         "anthropic": LLMSettings(api_key="", model="claude-3-sonnet-20240229"),
         # Gemini offers free API calls
-        "gemini": LLMSettings(api_key="", model="gemini-1.5-pro")
+        "gemini": LLMSettings(api_key=os.getenv("GEMINI_API_KEY"), model="gemini-1.5-pro")
     }
 
     

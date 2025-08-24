@@ -69,7 +69,8 @@ class BaseTool(ABC):
             Any: Result of the tool execution.
         """
         pass
-    @abstractmethod
+
+
     async def execute(self, **kwargs) -> ToolResponse:
         """
         Execute the tool with given parameters.

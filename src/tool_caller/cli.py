@@ -6,13 +6,13 @@ import logging
 from .core.llm_client import LLMClient
 from .core.tool_registry import ToolRegistry
 from .core.tool_executor import ToolExecutor
-# from .tools.registry import register_tool
+from .tools.registry import register_all_tools
 
 
 logger = logging.getLogger(__name__)
 
-
-@click.option('--interactive', '-i', is_flag=True, help='Interactive mode')
+@click.command()
+@click.option('--interactive', '-i', is_flag=True,default=False, help='Interactive mode')
 def main(interactive: bool):
 
     if interactive:
@@ -23,10 +23,10 @@ def main(interactive: bool):
     
     
     registry = ToolRegistry()
-    # register_tool(registry)
+    register_all_tools(registry)
 
     llm_client = LLMClient()
-    tool_executor = ToolExecutor(tool_registry=registry)
+    tool_executor = ToolExecutor(registry=registry)
     
     
     
@@ -35,6 +35,7 @@ def main(interactive: bool):
         pass
     else:
         user_input = click.prompt("Enter your request")
+        logging.info(f"User input: {user_input}")
         asyncio.run(process_single_request(user_input, llm_client, tool_executor, registry))
 
 
@@ -63,7 +64,7 @@ async def process_single_request(user_input, llm_client, tool_executor, registry
     
     # Process with LLM
     llm_response = await llm_client.process_user_input(user_input, tool_schemas)
-    
+
     if llm_response.tool_calls:
         execution_results = await tool_executor.execute_tool_calls(llm_response.tool_calls)
         

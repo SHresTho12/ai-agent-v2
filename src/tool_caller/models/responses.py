@@ -31,6 +31,9 @@ class CitationMetadata(BaseModel):
     
     citation_sources: List[Dict[str, Any]] = Field(default_factory=list, description="Citation sources")
 
+
+
+
 class LLMResponse(BaseModel):
     """Response model from LLM interactions"""
     
