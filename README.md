@@ -80,15 +80,32 @@ Project Structure
 
 ## Setup
 
-1. **Install `uv`** (a virtual environment and task runner):
+1. Clone the repo
+
+```bash
+git clone <repo_url>
+cd <repo_directory>
+```
+
+2. Create a `.env` file in the root directory and add your environment variables.
+
+```bash
+OPENAI_API_KEY=
+WEATHER_API_KEY=
+GEMINI_API_KEY=
+LOG_LEVEL=INFO
+```
+
+3. **Install `uv`** (a virtual environment and task runner):
 
 ```bash
 pip install uv
 ```
 
-2. **Create a virtual environment and install dependencies**:
+4. **Create a virtual environment and install dependencies**:
 
 ```bash
+uv venv
 uv run pip install -r requirements.txt
 ```
 
