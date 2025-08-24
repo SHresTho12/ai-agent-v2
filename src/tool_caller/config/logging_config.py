@@ -10,7 +10,7 @@ def setup_logging(verbose: bool = False) -> None:
     settings = get_settings()
     
     # Have the path directory in env file hardcoding for now
-    log_dir = Path("../../../logs")
+    log_dir = Path(settings.log_file).parent
     log_dir.mkdir(exist_ok=True)
     
     # Determine log level
@@ -45,7 +45,7 @@ def setup_logging(verbose: bool = False) -> None:
             }
         },
         "loggers": {
-            "llm_tool_caller": {
+            "tool_caller": {
                 "level": log_level,
                 "handlers": ["console", "file"],
                 "propagate": False
@@ -58,3 +58,6 @@ def setup_logging(verbose: bool = False) -> None:
     }
     
     logging.config.dictConfig(logging_config)
+
+
+

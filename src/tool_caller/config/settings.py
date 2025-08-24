@@ -1,7 +1,7 @@
 
 import os
 import logging
-
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from typing import Optional, Dict
 from dotenv import load_dotenv
@@ -51,8 +51,13 @@ class Settings(BaseSettings):
 
     # Logging
     log_level: str = "INFO"
-    log_file: str = "logs/app.log"
+    project_root: Path = Path(__file__).resolve().parent
+    log_file: Path =  "logs/app.log"
 
+    # Debug print to verify
+    print(f"Settings file: {Path(__file__).resolve()}")
+    print(f"Project root: {project_root}")
+    print(f"Log file: {log_file}")
     # Performance
     max_concurrent_tools: int = 5
     tool_timeout: float = 30.0
