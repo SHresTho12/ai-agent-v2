@@ -93,7 +93,7 @@ class ToolRegistry:
         """
         return list(self._tools.keys())
 
-    def auto_register_tools(self, tool_directory: "tool_caller.tools") -> None:
+    def auto_register_tools(self, tool_directory: str ="tool_caller.tools") -> None:
         """Automatically register tools found in the specified directory.
         """
         # I will do it later
