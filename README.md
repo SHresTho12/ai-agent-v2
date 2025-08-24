@@ -185,7 +185,7 @@ Provides comprehensive system information including CPU, memory, disk usage, and
 - "Get system information including top processes"
 - "Check disk space and network stats"
 
-![alt text](<Screenshot From 2025-08-24 22-40-51.png>)
+![alt text](docs/system_info_tool.png)
 
 ### Parameters
 
