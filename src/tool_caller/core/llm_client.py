@@ -1,6 +1,5 @@
-# src/llm_tool_caller/core/llm_client.py
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union
 
 from openai import AsyncOpenAI
 import google.generativeai as genai
@@ -11,7 +10,7 @@ from google.generativeai.protos import FunctionDeclaration
 from ..config.settings import get_settings
 from ..models.requests import LLMRequest
 from ..models.responses import LLMResponse
-
+from ..models.gemini_response import GeminiLLMResponse
 logger = logging.getLogger(__name__)
 
 class LLMClient:
@@ -49,7 +48,7 @@ class LLMClient:
         self, 
         user_input: str, 
         available_tools: List[Dict[str, Any]]
-    ) -> LLMResponse:
+    ) -> Union[LLMResponse, GeminiLLMResponse]:
         """Process user input and determine tool calls"""
         try:
             if self.provider == "openai":
@@ -68,10 +67,10 @@ class LLMClient:
             
             elif self.provider == "gemini":
 
-                response = self._process_gemini(user_input, available_tools)
+                response = await self._process_gemini(user_input, available_tools)
 
                 # Placeholder for parsing Gemini's response for tool calls
-                return self._parse_gemini_response(response)
+                return GeminiLLMResponse.from_gemini_response(response)
 
         except Exception as e:
             logger.error(f"[{self.provider}] LLM processing error: {e}")
@@ -87,7 +86,7 @@ class LLMClient:
         self,
         user_input: str,
         available_tools: List[Dict[str, Any]]
-    ) -> LLMResponse:
+    ) -> GeminiLLMResponse:
         """ Process with Gemini"""
         
         try:                # Convert tools to Gemini's format
