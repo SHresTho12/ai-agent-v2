@@ -36,7 +36,7 @@ class ToolExecutor:
             if isinstance(result, Exception):
                 execution_results.append(
                     ExecutionResult(
-                        tool_name=tool_calls[i].get("name", "unknown"),
+                        tool_name=tool_calls[i].name,
                         success=False,
                         error=str(result)
                     )
