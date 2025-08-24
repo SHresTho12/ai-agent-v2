@@ -117,13 +117,48 @@ uv run python -m tool_caller --interactive
 
 ---
 
-## Adding New Tools
+## Improving existing tools
 
 1. Create a new tool class inheriting from `BaseTool` in `src/tool_caller/tools/`.
 
 2. Implement `_run` for core logic and optionally override `parameters_model`.
 
 3. Register the tool in `tools/registry.py` with the `register_all_tools` function.
+
+## New tools
+
+1. **Log Analysis Tool** – Analyzes log files and generates a summary report.
+
+### Usage
+
+- **Tool Name**: `log_analysis`
+- **Purpose**: Automatically analyzes the configured application log file
+- **Supported Levels**: INFO, WARNING, ERROR, DEBUG
+
+### Example Queries
+
+- "Analyze the application logs"
+- "Show me the top 5 errors from the logs"
+- "What errors have occurred recently?"
+
+### Parameters
+
+| Parameter | Type    | Default | Description                            |
+| --------- | ------- | ------- | -------------------------------------- |
+| `top_n`   | integer | 5       | Number of top error messages to return |
+
+### Output
+
+Returns a report with:
+
+- Log level counts (INFO, ERROR, WARNING, DEBUG)
+- Top error messages with frequency
+- Time range of log entries
+- Total lines processed
+
+### Configuration
+
+Uses the log file path from `settings.log_file` - no need to specify file paths in requests.
 
 **Example**:
 
