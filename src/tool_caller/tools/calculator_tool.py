@@ -1,9 +1,13 @@
 import math
 import time
+import logging
 import ast
 import operator
 from typing import Dict, Any
 from ..tools.base import BaseTool, ToolResponse, ToolSchema
+
+
+logger = logging.getLogger(__name__)
 
 class CalculatorTool(BaseTool):
     """Tool for performing mathematical calculations"""
@@ -92,6 +96,7 @@ class CalculatorTool(BaseTool):
             return self._eval_node(tree.body)
         
         except Exception as e:
+            logger.error(f"Error evaluating expression '{expression}': {str(e)}")
             raise ValueError(f"Invalid expression: {str(e)}")
     
     def _eval_node(self, node):
@@ -107,6 +112,7 @@ class CalculatorTool(BaseTool):
             if op:
                 return op(left, right)
             else:
+                logger.error(f"Unsupported operator: {type(node.op)}")
                 raise ValueError(f"Unsupported operator: {type(node.op)}")
         elif isinstance(node, ast.UnaryOp):
             operand = self._eval_node(node.operand)
@@ -114,6 +120,7 @@ class CalculatorTool(BaseTool):
             if op:
                 return op(operand)
             else:
+                logger.error(f"Unsupported unary operator: {type(node.op)}")
                 raise ValueError(f"Unsupported unary operator: {type(node.op)}")
         elif isinstance(node, ast.Call):
             func_name = node.func.id
@@ -121,13 +128,16 @@ class CalculatorTool(BaseTool):
                 args = [self._eval_node(arg) for arg in node.args]
                 return self.SAFE_FUNCTIONS[func_name](*args)
             else:
+                logger.error(f"Unsupported function: {func_name}")
                 raise ValueError(f"Unsupported function: {func_name}")
         elif isinstance(node, ast.Name):
             if node.id in self.SAFE_FUNCTIONS:
                 return self.SAFE_FUNCTIONS[node.id]
             else:
+                logger.error(f"Unsupported name: {node.id}")
                 raise ValueError(f"Unsupported name: {node.id}")
         else:
+            logger.error(f"Unsupported node type: {type(node)}")
             raise ValueError(f"Unsupported node type: {type(node)}")
 
     async def _run(self, **kwargs) -> Any:

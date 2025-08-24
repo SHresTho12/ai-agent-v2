@@ -60,10 +60,12 @@ class ToolExecutor:
         
         tool = self.registry.get_tool(tool_name)
         if not tool:
+            logger.error(f"Tool {tool_name} not found in registry")
             raise ValueError(f"Tool {tool_name} not found")
         
         # Validate parameters
         if not tool.validate_parameters(parameters):
+            logger.error(f"Invalid parameters for tool {tool_name}: {parameters}")
             raise ValueError(f"Invalid parameters for tool {tool_name}")
         
         # Execute tool

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     ## Check if there is any api key available in the environment variables
 
     if not os.getenv("GEMINI_API_KEY"):
-        logger.warning("GEMINI_API_KEY is not set. Some features may not work.")
+        logger.error("GEMINI_API_KEY is not set. Some features may not work.")
         raise ValueError("GEMINI_API_KEY is required but not set in environment variables.")
     
     if not os.getenv("WEATHER_API_KEY"):

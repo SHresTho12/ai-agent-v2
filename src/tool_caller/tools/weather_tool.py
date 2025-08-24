@@ -1,9 +1,12 @@
 import aiohttp
 import asyncio
 import time
+import logging
 from typing import Dict, Any
 from ..tools.base import BaseTool, ToolResponse, ToolSchema
 from ..config.settings import get_settings
+
+logger = logging.getLogger(__name__)
 
 class WeatherTool(BaseTool):
     """Tool for fetching weather information"""
@@ -84,4 +87,5 @@ class WeatherTool(BaseTool):
                     }
                 else:
                     error_data = await response.json()
+                    logger.error(f"Weather API error: {error_data.get('message', 'Unknown error')}")
                     raise RuntimeError(f"Weather API error: {error_data.get('message', 'Unknown error')}")
