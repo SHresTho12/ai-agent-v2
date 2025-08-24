@@ -9,8 +9,8 @@ def setup_logging(verbose: bool = False) -> None:
     
     settings = get_settings()
     
-    # Create logs directory if it doesn't exist
-    log_dir = Path("logs")
+    # Have the path directory in env file hardcoding for now
+    log_dir = Path("../../../logs")
     log_dir.mkdir(exist_ok=True)
     
     # Determine log level

@@ -22,7 +22,7 @@ class LLMClient:
         self.settings = get_settings()
         self.provider = provider or self.settings.default_llm_provider
         self.llm_config = self.settings.llms.get(self.provider)
-
+    
         if not self.llm_config:
             logger.error(f"LLM provider {provider} not configured")
             raise ValueError(f"LLM provider {provider} not configured")
@@ -110,7 +110,33 @@ class LLMClient:
             logger.error(f"Error converting tools for Gemini: {e}")
             raise
         
-        chat = self.client.start_chat(history=[])
+        # chat = self.client.start_chat(history=[])
+        # response = await chat.send_message_async(
+        #     user_input,
+        #     tools=tools_for_gemini,
+        #     generation_config=genai.types.GenerationConfig(
+        #         temperature=self.llm_config.temperature,
+        #         max_output_tokens=self.llm_config.max_tokens,
+        #     )
+        # )
+        
+        initial_history = [
+            {
+                "role": "user",
+                "parts": [
+                    "You are an assistant that can call tools if necessary. "
+                    "Prioritize tool calling."
+                    "If a tool is not required, try to answer the question directly."
+                ]
+            }
+        ]
+        
+        # Start the chat with the initial history.
+        # This correctly sets the context for the model.
+        chat = self.client.start_chat(history=initial_history)
+        
+        # Send only the new user input. The SDK handles wrapping it
+        # in the correct `Content` object and appends it to the history.
         response = await chat.send_message_async(
             user_input,
             tools=tools_for_gemini,
