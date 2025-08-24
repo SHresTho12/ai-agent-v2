@@ -1,8 +1,12 @@
 from pydantic import BaseModel, Field, validator
 from typing import Dict, List, Any, Optional, Union
+import logging
 from datetime import datetime
 import json
 import uuid
+
+
+logger = logging.getLogger(__name__)
 
 class ToolCallResponse(BaseModel):
     """Model for a tool call response"""
@@ -108,28 +112,29 @@ class GeminiLLMResponse(BaseModel):
                     content_parts = candidate.content.parts
                     text_parts = []
                     for part in content_parts:
-                        print("Processing part:", part)
-                        print("Part type:", type(part))
-                        print("part.function_call:", getattr(part, "function_call", None))
+                        # print("Processing part:", part)
+                        # print("Part type:", type(part))
+                        # print("part.function_call:", getattr(part, "function_call", None))
                         
                         # Check for function_call first, or make text check more specific
                         if hasattr(part, "function_call") and part.function_call:
                             func_call = part.function_call
                             arguments = {}
                             args = getattr(func_call, "args", None)
-                            print("Processing function call arguments...")
-                            print("args:", args)
+                            # print("Processing function call arguments...")
+                            # print("args:", args)
                             if args:
                                 try:
-                                    print("Trying to iterate as dict...")
+                                    # print("Trying to iterate as dict...")
                                     for k, v in args.items():
                                         print(f"Key: {k}, Value: {v}, Value type: {type(v)}")
                                         arguments[k] = v
                                 except Exception as e:
-                                    print(f"Dict iteration failed: {e}")
-                        
+                                    logger.error(f"Dict iteration failed: {e}")
+                                    # print(f"Dict iteration failed: {e}")
+
                                     try:
-                                        print("Trying dict() conversion...")
+                                        # print("Trying dict() conversion...")
                                         args_dict = dict(args)
                                         print("Converted args_dict:", args_dict)
                                         for k, v in args_dict.items():
@@ -142,7 +147,7 @@ class GeminiLLMResponse(BaseModel):
                                         print("Available methods:", [method for method in dir(args) if not method.startswith('_')])
 
                             
-                            print("Extracted tool call arguments:", arguments)
+                            # print("Extracted tool call arguments:", arguments)
                             tool_calls.append(ToolCallResponse(
                                 id=str(uuid.uuid4()),
                                 name=getattr(func_call, "name", ""),

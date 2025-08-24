@@ -7,14 +7,17 @@ from .core.llm_client import LLMClient
 from .core.tool_registry import ToolRegistry
 from .core.tool_executor import ToolExecutor
 from .tools.registry import register_all_tools
-
+from .config.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
 @click.command()
+@click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
 @click.option('--interactive', '-i', is_flag=True,default=False, help='Interactive mode')
-def main(interactive: bool):
+def main(verbose: bool, interactive: bool):
 
+    setup_logging(verbose)
+    
     if interactive:
         logger.info("Starting interactive mode...")
         # Implement interactive mode logic here

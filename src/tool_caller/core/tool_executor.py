@@ -24,9 +24,8 @@ class ToolExecutor:
 
         tasks = []
         for tool_call in tool_calls:
-            
-            
-            print("Scheduling tool call:", tool_call)
+
+            logger.info(f"Scheduling tool call: {tool_call}")
             task = self._execute_single_tool(tool_call)
             tasks.append(task)
         
@@ -50,14 +49,14 @@ class ToolExecutor:
     
     async def _execute_single_tool(self, tool_call: Dict[str, Any]) -> ExecutionResult:
         """Execute a single tool call"""
-        print("Executing tool call:", tool_call)
-        print("Type:", type(tool_call))
+        # print("Executing tool call:", tool_call)
+        # print("Type:", type(tool_call))
         
  
         tool_name = tool_call.name
-        parameters = tool_call.arguments  # Note: it's 'arguments', not 'parameters'
+        parameters = tool_call.arguments  
         
-        logger.info(f"Executing tool: {tool_name} with params: {parameters}")
+        #logger.info(f"Executing tool: {tool_name} with params: {parameters}")
         
         tool = self.registry.get_tool(tool_name)
         if not tool:
