@@ -1,3 +1,4 @@
+
 from pydantic_settings import BaseSettings
 from typing import Optional, Dict
 
@@ -16,9 +17,13 @@ class Settings(BaseSettings):
     # Multiple LLM configurations
     llms: Dict[str, LLMSettings] = {
         "openai": LLMSettings(api_key="", model="gpt-4"),
-        "anthropic": LLMSettings(api_key="", model="claude-v1"),
+        "anthropic": LLMSettings(api_key="", model="claude-3-sonnet-20240229"),
+        # Gemini offers free API calls
+        "gemini": LLMSettings(api_key="", model="gemini-1.5-pro")
     }
 
+    
+    default_llm_provider: str = "gemini"
     # Tool API keys
     weather_api_key: Optional[str] = None
 
